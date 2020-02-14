@@ -4,7 +4,7 @@ const createChannel = (orbitdb, channelDatabase) => async (req, res) => {
     await channelDatabase.load();
     if (!name || !id)
         return res.status(400).json('Channel name or creator id not provided')
-    const data = channelDatabase.query(doc => doc.name == name)
+    const data = channelDatabase.query(doc => doc._id == name)
     if (data.length)
         return res.status(400).json('Channel already exists!')
     const options = {
@@ -13,14 +13,29 @@ const createChannel = (orbitdb, channelDatabase) => async (req, res) => {
             write: [id]
         }
     }
-    var token
-    // require('crypto').randomBytes(48, function (err, buffer) {
-    //     token = buffer.toString('hex');
-    // });
+    
     const db = await orbitdb.docs(name, options);
     channelDatabase.put({ _id: name, address: db.id })
         .then(_ => res.json('Channel successfully created'))
         .catch(err => res.status(400).json('Error'))
+
+}
+
+const subscribeChannel = (orbitdb,channelDatabase) => async (req, res) => {
+    const { id } = req.body;
+    const { name } = req.params;
+    await channelDatabase.load();
+    if (!name || !id)
+        return res.status(400).json('Channel name or subscriber id not provided')
+    const data = channelDatabase.query(doc => doc._id == name)
+    if (!data.length)
+        return res.status(400).json('Channel does not exist!')
+        
+   
+    const db = await orbitdb.docs(name);
+    await db.access.grant('write', id)
+    return res.json('User successfully subscribed')
+    
 
 }
 
@@ -34,4 +49,12 @@ const getChannel= (channelDatabase) => async (req,res)=>{
     return res.json({address:data[0].address})
 }
 
-module.exports=({createChannel,getChannel})
+const getAllChannels= (channelDatabase) => async (req,res)=>{
+    await channelDatabase.load()
+    const data = channelDatabase.query(doc => doc._id)
+    // console.log(data)
+    
+    return res.json({address:data})
+}
+
+module.exports=({createChannel,getChannel,subscribeChannel,getAllChannels})
