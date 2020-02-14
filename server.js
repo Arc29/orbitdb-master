@@ -21,6 +21,17 @@ console.log("Starting...");
 const getDatabase = async () => {
   const ipfs = new IPFS({
     repo: "./orbitdb/examples/ipfs",
+    config: {
+        "Addresses": {
+          "Swarm": [
+            "/ip4/127.0.0.1/tcp/4001",
+            "/ip6/::/tcp/4001",
+            "/ip4/127.0.0.1/tcp/4002/ws"
+          ],
+          "API": "/ip4/127.0.0.1/tcp/5001",
+          "Gateway": "/ip4/127.0.0.1/tcp/8080"
+        }
+      },    
     start: true,
     EXPERIMENTAL: {
       pubsub: true
