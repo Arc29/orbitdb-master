@@ -1,16 +1,15 @@
 
 const createChannel = (orbitdb, channelDatabase) => async (req, res) => {
-    const { name, id, hash } = req.body;
+    const { name, hash } = req.body;
     await channelDatabase.load();
-    if (!name || !id || !hash)
+    if (!name  || !hash)
         return res.status(400).json('All values not provided')
     const data = channelDatabase.query(doc => doc._id == name)
     if (data.length)
         return res.status(400).json('Channel already exists!')
     const options = {
         accessController: {
-            type: 'orbitdb', //OrbitDBAcGETcessController
-            write: [id]
+            write:['*']
         }
     }
     
@@ -21,26 +20,26 @@ const createChannel = (orbitdb, channelDatabase) => async (req, res) => {
 
 }
 
-const subscribeChannel = (orbitdb,channelDatabase) => async (req, res) => {
-    const { id } = req.body;
-    const { name } = req.params;
-    await channelDatabase.load();
-    if (!name || !id)
-        return res.status(400).json('Channel name or subscriber id not provided')
-    const data = channelDatabase.query(doc => doc._id == name)
-    if (!data.length)
-        return res.status(400).json('Channel does not exist!')
+// const subscribeChannel = (orbitdb,channelDatabase) => async (req, res) => {
+//     const { id } = req.body;
+//     const { name } = req.params;
+//     await channelDatabase.load();
+//     if (!name || !id)
+//         return res.status(400).json('Channel name or subscriber id not provided')
+//     const data = channelDatabase.query(doc => doc._id == name)
+//     if (!data.length)
+//         return res.status(400).json('Channel does not exist!')
         
     
     
-    const db = await orbitdb.eventlog(data[0].address);
-    await db.load()
-    console.log(db.access)
-    await db.access.grant('write', id)
-    return res.json('User successfully subscribed')
+//     const db = await orbitdb.eventlog(data[0].address);
+//     await db.load()
+//     console.log(db.access)
+//     await db.access.grant('write', id)
+//     return res.json('User successfully subscribed')
     
 
-}
+// }
 
 const getChannel= (channelDatabase) => async (req,res)=>{
     const {channelName}=req.params;
@@ -60,4 +59,4 @@ const getAllChannels= (channelDatabase) => async (req,res)=>{
     return res.json({address:data})
 }
 
-module.exports=({createChannel,getChannel,subscribeChannel,getAllChannels})
+module.exports=({createChannel,getChannel,getAllChannels})

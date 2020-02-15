@@ -88,13 +88,14 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.post('/channel/create',channel.createChannel(orbitdb,channelDatabase))
-app.post('/channel/subscribe/:name',channel.subscribeChannel(orbitdb,channelDatabase))
+// app.post('/channel/subscribe/:name',channel.subscribeChannel(orbitdb,channelDatabase))
 app.get('/channel/all',channel.getAllChannels(channelDatabase))
 app.get('/channel/:channelName',channel.getChannel(channelDatabase))
 
 // app.post('/channel/:id/chat',channel.chat(orbitdb))
 app.post('/users/add',user.add(userDatabase))
 app.get('/users/:ethAddress',user.getName(userDatabase))
+app.get('/users/login/:ethAddress',user.getDetails(userDatabase))
 
 app.listen(3000,console.log('watching on port 3000'))
 })
