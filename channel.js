@@ -1,9 +1,9 @@
 
 const createChannel = (orbitdb, channelDatabase) => async (req, res) => {
-    const { name, id } = req.body;
+    const { name, id, hash } = req.body;
     await channelDatabase.load();
-    if (!name || !id)
-        return res.status(400).json('Channel name or creator id not provided')
+    if (!name || !id || !hash)
+        return res.status(400).json('All values not provided')
     const data = channelDatabase.query(doc => doc._id == name)
     if (data.length)
         return res.status(400).json('Channel already exists!')
@@ -14,8 +14,8 @@ const createChannel = (orbitdb, channelDatabase) => async (req, res) => {
         }
     }
     
-    const db = await orbitdb.docs(name, options);
-    channelDatabase.put({ _id: name, address: db.id })
+    const db = await orbitdb.eventlog(name, options);
+    channelDatabase.put({ _id: name, address: db.id, passHash:hash })
         .then(_ => res.json('Channel successfully created'))
         .catch(err => res.status(400).json('Error'))
 
@@ -31,8 +31,11 @@ const subscribeChannel = (orbitdb,channelDatabase) => async (req, res) => {
     if (!data.length)
         return res.status(400).json('Channel does not exist!')
         
-   
-    const db = await orbitdb.docs(name);
+    
+    
+    const db = await orbitdb.eventlog(data[0].address);
+    await db.load()
+    console.log(db.access)
     await db.access.grant('write', id)
     return res.json('User successfully subscribed')
     
@@ -46,7 +49,7 @@ const getChannel= (channelDatabase) => async (req,res)=>{
     // console.log(data)
     if (!data.length)
         return res.status(400).json('Channel does not exist!')
-    return res.json({address:data[0].address})
+    return res.json({address:data[0].address,hash:data[0].passHash})
 }
 
 const getAllChannels= (channelDatabase) => async (req,res)=>{

@@ -50,6 +50,7 @@ const getDatabase = async () => {
     orbitdb = await OrbitDB.createInstance(ipfs, {
       directory: "./orbitdb/data/test0"
     });
+    console.log(orbitdb.identity.id)
     const options = {
       accessController: {
         type: 'orbitdb', //OrbitDBAccessController
